@@ -3,7 +3,8 @@ const CURRENT_USER_KEY = 'boundful_current_session';
 
 const defaultUsers = [
   { username: 'BoundedDev', password: 'password123', role: 'Admin', avatar: 'BD' },
-  { username: 'Steve', password: 'password123', role: 'User', avatar: 'ST' }
+  { username: 'Steve', password: 'password123', role: 'User', avatar: 'ST' },
+  { username: 'Reyanis', password: 'BLFan123456', role: 'Admin', avatar: 'R' }
 ];
 
 export function getStoredUsers() {
