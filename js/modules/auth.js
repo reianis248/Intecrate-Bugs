@@ -37,22 +37,19 @@ export function getCurrentUser() {
 
 export function deleteUserAccount(usernameToDelete) {
   const currentUser = getCurrentUser();
-
-  // Safety check: Don't allow deleting self
-  if (currentUser && currentUser.username.toLowerCase() === usernameToDelete.toLowerCase()) {
-    return { success: false, message: "You cannot delete your own active session account!" };
-  }
-
   let users = getStoredUsers();
-  const initialCount = users.length;
-  users = users.filter(u => u.username.toLowerCase() !== usernameToDelete.toLowerCase());
 
-  if (users.length === initialCount) {
-    return { success: false, message: "User not found." };
+  // Check if user is deleting themselves
+  const isSelf = currentUser && currentUser.username.toLowerCase() === usernameToDelete.toLowerCase();
+
+  users = users.filter(u => u.username.toLowerCase() !== usernameToDelete.toLowerCase());
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+  if (isSelf) {
+    localStorage.removeItem(CURRENT_USER_KEY);
   }
 
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  return { success: true, message: `Account '${usernameToDelete}' has been deleted.` };
+  return { success: true, isSelf, message: `Account '${usernameToDelete}' has been deleted.` };
 }
 
 export function loginUser(username, password) {
@@ -101,14 +98,20 @@ export function checkAuthGuard() {
 }
 
 export function initAuth() {
-  checkAuthGuard();
-  const currentUser = getCurrentUser();
+  const user = getCurrentUser();
 
-  if (currentUser) {
+  // Route guard: redirect unauthenticated users to login page
+  if (!user && !window.location.pathname.endsWith('login.html')) {
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  if (user) {
     const avatarEl = document.querySelector('.user-avatar');
     if (avatarEl) {
-      avatarEl.textContent = currentUser.avatar;
-      avatarEl.title = `Logged in as ${currentUser.username} (${currentUser.role})`;
+      avatarEl.textContent = user.avatar || user.username.substring(0, 2).toUpperCase();
+      avatarEl.title = `Logged in as ${user.username} (${user.role})`;
     }
   }
+  return true;
 }
