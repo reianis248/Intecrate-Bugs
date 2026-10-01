@@ -3,6 +3,7 @@ const CURRENT_USER_KEY = 'boundful_current_session';
 
 const defaultUsers = [
   { username: 'BoundedDev', password: 'password123', role: 'Admin', avatar: 'BD' },
+  { username: 'reianis_', password: 'Ghostie_Roblox111', role: 'Admin', avatar: 'R' },
   { username: 'Steve', password: 'password123', role: 'User', avatar: 'ST' }
 ];
 
