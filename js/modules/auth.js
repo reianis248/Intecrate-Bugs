@@ -13,7 +13,6 @@ export function getStoredUsers() {
     return defaultUsers;
   }
 
-  // Auto-sync new hardcoded default users if added
   const storedUsers = JSON.parse(data);
   let updated = false;
   defaultUsers.forEach(defaultUser => {
@@ -39,7 +38,6 @@ export function deleteUserAccount(usernameToDelete) {
   const currentUser = getCurrentUser();
   let users = getStoredUsers();
 
-  // Check if user is deleting themselves
   const isSelf = currentUser && currentUser.username.toLowerCase() === usernameToDelete.toLowerCase();
 
   users = users.filter(u => u.username.toLowerCase() !== usernameToDelete.toLowerCase());
@@ -100,7 +98,6 @@ export function checkAuthGuard() {
 export function initAuth() {
   const user = getCurrentUser();
 
-  // Route guard: redirect unauthenticated users to login page
   if (!user && !window.location.pathname.endsWith('login.html')) {
     window.location.href = 'login.html';
     return false;
@@ -111,7 +108,70 @@ export function initAuth() {
     if (avatarEl) {
       avatarEl.textContent = user.avatar || user.username.substring(0, 2).toUpperCase();
       avatarEl.title = `Logged in as ${user.username} (${user.role})`;
+      avatarEl.style.cursor = 'pointer';
+
+      // Attach dropdown click handler
+      const newAvatarEl = avatarEl.cloneNode(true);
+      avatarEl.parentNode.replaceChild(newAvatarEl, avatarEl);
+
+      newAvatarEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleUserMenu(user);
+      });
     }
   }
   return true;
+}
+
+function toggleUserMenu(user) {
+  let existingMenu = document.getElementById('user-dropdown-menu');
+  if (existingMenu) {
+    existingMenu.remove();
+    return;
+  }
+
+  const menu = document.createElement('div');
+  menu.id = 'user-dropdown-menu';
+  menu.style.cssText = `
+    position: absolute;
+    top: 55px;
+    right: 20px;
+    background: white;
+    border: 1px solid #dfe1e6;
+    box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
+    border-radius: 4px;
+    width: 200px;
+    z-index: 1000;
+    padding: 8px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  `;
+
+  menu.innerHTML = `
+    <div style="padding: 8px 16px; border-bottom: 1px solid #dfe1e6; margin-bottom: 4px;">
+      <div style="font-weight: 600; font-size: 13px; color: #172b4d;">${user.username}</div>
+      <div style="font-size: 11px; color: #5e6c84;">Role: ${user.role}</div>
+    </div>
+    <a href="#" id="menu-manage-users" style="display: block; padding: 6px 16px; color: #091e42; text-decoration: none; font-size: 13px;">User Management</a>
+    <a href="#" id="menu-logout" style="display: block; padding: 6px 16px; color: #de350b; text-decoration: none; font-size: 13px;">Log out</a>
+  `;
+
+  document.body.appendChild(menu);
+
+  menu.querySelector('#menu-manage-users').onclick = (e) => {
+    e.preventDefault();
+    menu.remove();
+    import('./modals.js').then(m => m.openUserManagementModal());
+  };
+
+  menu.querySelector('#menu-logout').onclick = (e) => {
+    e.preventDefault();
+    logoutUser();
+  };
+
+  document.addEventListener('click', function closeMenu(evt) {
+    if (!menu.contains(evt.target)) {
+      menu.remove();
+      document.removeEventListener('click', closeMenu);
+    }
+  });
 }
