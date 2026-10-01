@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MC Issues - Minecraft Bug Tracker</title>
+  <title>Boundful - Issue Tracker</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <div class="app-container">
-  <!-- Jira Header -->
+  <!-- Top Navigation Header -->
   <header class="jira-header">
     <div class="header-left">
-      <span class="jira-logo"><i class="fa-brands fa-jira"></i> Atlassian</span>
+      <span class="jira-logo"><i class="fa-solid fa-cube"></i> Boundful</span>
       <span class="nav-item active">Projects</span>
       <span class="nav-item">Filters</span>
       <span class="nav-item">Dashboards</span>
       <button class="create-btn">Create</button>
     </div>
     <div class="header-right">
-      <input type="text" placeholder="Search Jira..." class="global-search">
-      <div class="user-avatar" title="Logged in as MojangDev">MD</div>
+      <input type="text" placeholder="Search Boundful..." class="global-search">
+      <div class="user-avatar" title="Logged in as BoundedDev">BD</div>
     </div>
   </header>
 
@@ -30,7 +30,7 @@
       <div class="project-info">
         <img src="icon.svg" alt="Project Icon" class="project-icon" width="24" height="24">
         <div>
-          <h3>Mojira - MC Issues</h3>
+          <h3>Boundful Issues</h3>
           <span class="project-type">Software project</span>
         </div>
       </div>
@@ -63,22 +63,7 @@
           </tr>
           </thead>
           <tbody id="issue-table-body">
-          <tr>
-            <td><i class="fa-solid fa-bug" style="color: #e5493a;"></i></td>
-            <td><a href="#">MC-312218</a></td>
-            <td>The game crashes randomly</td>
-            <td><span class="status-badge open">OPEN</span></td>
-            <td><i class="fa-solid fa-angles-up" style="color: #ff5630;"></i> High</td>
-            <td>Just now</td>
-          </tr>
-          <tr>
-            <td><i class="fa-solid fa-bug" style="color: #e5493a;"></i></td>
-            <td><a href="#">MC-312216</a></td>
-            <td>Spear attack registration is not synced</td>
-            <td><span class="status-badge in-progress">IN PROGRESS</span></td>
-            <td><i class="fa-solid fa-angle-up" style="color: #ffab00;"></i> Medium</td>
-            <td>2 mins ago</td>
-          </tr>
+          <!-- Populated dynamically by js/modules/filters.js -->
           </tbody>
         </table>
       </div>
@@ -86,6 +71,6 @@
   </div>
 </div>
 
-<script src="js/app.js"></script>
+<script src="js/app.js" type="module"></script>
 </body>
 </html>

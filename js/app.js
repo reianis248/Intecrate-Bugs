@@ -1,11 +1,12 @@
-// Modular entry point for application state, auth system, and DOM rendering
+import { renderIssueTable, initFilters } from './modules/filters.js';
+import { initModals } from './modules/modals.js';
 import { initAuth } from './modules/auth.js';
-import { initIssues } from './modules/issues.js';
-import { initUI } from './modules/ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("Mojira tracker initialized via modular JS.");
+  console.log("Boundful Issue Tracker initialized.");
+
   initAuth();
-  initUI();
-  initIssues();
+  renderIssueTable();
+  initFilters();
+  initModals();
 });
