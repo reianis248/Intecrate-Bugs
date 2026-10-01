@@ -14,6 +14,10 @@ export function renderIssueTable(filteredIssues = null) {
 
   issues.forEach(issue => {
     const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.className = 'issue-row';
+    tr.setAttribute('data-key', issue.key);
+
     const badgeClass = issue.status === 'OPEN' ? 'open' : 'in-progress';
     const priorityIcon = issue.priority === 'High'
       ? '<i class="fa-solid fa-angles-up" style="color: #ff5630;"></i> High'
@@ -27,6 +31,13 @@ export function renderIssueTable(filteredIssues = null) {
             <td>${priorityIcon}</td>
             <td>${issue.updated}</td>
         `;
+
+    // Row Click Handler -> Navigate to issue.html full page
+    tr.addEventListener('click', (e) => {
+      if (e.target.classList.contains('issue-link')) return; // Let modal open if text link clicked
+      window.location.href = `issue.html?key=${issue.key}`;
+    });
+
     tbody.appendChild(tr);
   });
 }
