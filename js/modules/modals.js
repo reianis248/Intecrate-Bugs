@@ -21,13 +21,93 @@ export function initModals() {
     }
 
     // Handle Create Button Click
-    const createBtn = e.target.closest('.create-btn');
+    const createBtn = e.target.closest('#create-btn') || e.target.closest('.create-btn') || (e.target.tagName === 'BUTTON' && e.target.textContent.trim() === 'Create');
     if (createBtn && !e.target.closest('.jira-modal')) {
       e.preventDefault();
       openCreateModal();
       return;
     }
   });
+}
+
+export function openCreateModal() {
+  const modal = document.createElement('div');
+  modal.className = 'jira-modal-overlay';
+
+  modal.innerHTML = `
+    <div class="jira-modal" style="max-width: 500px;">
+        <div class="jira-modal-header">
+            <h2>Create Issue</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        <form id="create-issue-form" class="jira-modal-body">
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Issue Type</label>
+                <select id="issue-type" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px;">
+                    <option value="Bug">Bug</option>
+                    <option value="Task">Task</option>
+                    <option value="Story">Story</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Summary *</label>
+                <input type="text" id="issue-summary" required placeholder="What needs to be done?" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 14px; display: flex; gap: 12px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Status</label>
+                    <select id="issue-status" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px;">
+                        <option value="OPEN">OPEN</option>
+                        <option value="IN PROGRESS">IN PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Priority</label>
+                    <select id="issue-priority" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px;">
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button type="button" class="close-modal" style="background: none; border: none; padding: 8px 12px; cursor: pointer; color: #42526e;">Cancel</button>
+                <button type="submit" style="background: #0052cc; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: 600;">Create</button>
+            </div>
+        </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => modal.remove();
+  });
+
+  modal.querySelector('#create-issue-form').onsubmit = (e) => {
+    e.preventDefault();
+
+    const issues = getStoredIssues();
+    const newKey = `BF-${1001 + issues.length}`;
+
+    const newIssue = {
+      key: newKey,
+      type: document.getElementById('issue-type').value,
+      summary: document.getElementById('issue-summary').value.trim(),
+      status: document.getElementById('issue-status').value,
+      priority: document.getElementById('issue-priority').value,
+      updated: 'Just now'
+    };
+
+    issues.unshift(newIssue);
+    saveIssues(issues);
+    renderIssueTable();
+    modal.remove();
+  };
 }
 
 export function openUserManagementModal() {
