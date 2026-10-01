@@ -3,26 +3,32 @@ import { renderIssueTable } from './filters.js';
 import { getCurrentUser, getStoredUsers, deleteUserAccount } from './auth.js';
 
 export function initModals() {
+  // Delegated click handler for issue links and user management
   document.addEventListener('click', (e) => {
+    // Handle Issue Link Click
     if (e.target.classList.contains('issue-link')) {
       e.preventDefault();
       const key = e.target.getAttribute('data-key');
       openIssueModal(key);
+      return;
     }
-  });
 
-  const createBtn = document.querySelector('.create-btn');
-  if (createBtn) {
-    createBtn.addEventListener('click', openCreateModal);
-  }
-
-  const manageUsersBtn = document.getElementById('manage-users-btn');
-  if (manageUsersBtn) {
-    manageUsersBtn.addEventListener('click', (e) => {
+    // Handle User Management Sidebar Click
+    const manageBtn = e.target.closest('#manage-users-btn');
+    if (manageBtn) {
       e.preventDefault();
       openUserManagementModal();
-    });
-  }
+      return;
+    }
+
+    // Handle Create Button Click
+    const createBtn = e.target.closest('.create-btn');
+    if (createBtn && !e.target.closest('.jira-modal')) {
+      e.preventDefault();
+      openCreateModal();
+      return;
+    }
+  });
 }
 
 export function openUserManagementModal() {
