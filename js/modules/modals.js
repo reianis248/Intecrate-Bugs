@@ -1,113 +1,97 @@
 import { getStoredIssues, saveIssues } from './storage.js';
 import { renderIssueTable } from './filters.js';
-import { getCurrentUser } from './auth.js';
+import { getCurrentUser, getStoredUsers, deleteUserAccount } from './auth.js';
 
 export function initModals() {
-  // Open modal when clicking issue link in table
   document.addEventListener('click', (e) => {
     if (e.target.classList.contains('issue-link')) {
       e.preventDefault();
       const key = e.target.getAttribute('data-key');
-
-      // Push URL state for unique issue link
-      window.history.pushState({ issueKey: key }, '', `?issue=${key}`);
       openIssueModal(key);
     }
-  });
-
-  // Check URL query parameters on initial page load
-  checkUrlForIssue();
-
-  // Handle browser Back/Forward navigation
-  window.addEventListener('popstate', () => {
-    const existingModal = document.querySelector('.jira-modal-overlay');
-    if (existingModal) existingModal.remove();
-    checkUrlForIssue();
   });
 
   const createBtn = document.querySelector('.create-btn');
   if (createBtn) {
     createBtn.addEventListener('click', openCreateModal);
   }
-}
 
-function checkUrlForIssue() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const issueKey = urlParams.get('issue');
-  if (issueKey) {
-    openIssueModal(issueKey);
+  const manageUsersBtn = document.getElementById('manage-users-btn');
+  if (manageUsersBtn) {
+    manageUsersBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openUserManagementModal();
+    });
   }
 }
 
-export function openIssueModal(key) {
-  const issues = getStoredIssues();
-  const issue = issues.find(i => i.key === key);
-  if (!issue) return;
-
-  // Remove any existing active modal
-  const existingModal = document.querySelector('.jira-modal-overlay');
-  if (existingModal) existingModal.remove();
-
+export function openUserManagementModal() {
   const currentUser = getCurrentUser();
+  const users = getStoredUsers();
 
   const modal = document.createElement('div');
   modal.className = 'jira-modal-overlay';
+
   modal.innerHTML = `
-        <div class="jira-modal">
+        <div class="jira-modal" style="max-width: 550px;">
             <div class="jira-modal-header">
-                <h2><i class="fa-solid fa-bug" style="color: #e5493a;"></i> ${issue.key}</h2>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button id="share-issue-btn" title="Copy link to issue" style="background: none; border: none; cursor: pointer; color: #5e6c84;">
-                        <i class="fa-solid fa-link"></i>
-                    </button>
-                    <button class="close-modal">&times;</button>
-                </div>
+                <h2><i class="fa-solid fa-users" style="color: #0052cc;"></i> User Management</h2>
+                <button class="close-modal">&times;</button>
             </div>
             <div class="jira-modal-body">
-                <h3>${issue.summary}</h3>
-                <p class="reporter"><strong>Reporter:</strong> ${issue.reporter}</p>
-                <div class="description-box">
-                    <strong>Description:</strong>
-                    <p>${issue.description || 'No description provided.'}</p>
-                </div>
-                <hr style="margin: 16px 0; border: none; border-top: 1px solid #dfe1e6;">
-                <h4>Comments</h4>
-                <div class="comments-list" id="comments-list">
-                    ${(issue.comments || []).map(c => `<div class="comment"><strong>${c.author}:</strong>${c.text}</div>`).join('')}
-                </div>
-                <div class="add-comment" style="margin-top: 12px; display: flex; gap: 8px;">
-                    <input type="text" id="comment-input" placeholder="Add a comment as ${currentUser.username}..." style="flex: 1; padding: 6px;">
-                    <button id="post-comment-btn" class="create-btn">Comment</button>
-                </div>
+                <p style="font-size: 13px; color: #5e6c84; margin-bottom: 16px;">
+                    Registered user accounts stored in LocalStorage.
+                </p>
+
+                <table class="issue-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #dfe1e6; text-align: left;">
+                            <th style="padding: 8px;">User</th>
+                            <th style="padding: 8px;">Role</th>
+                            <th style="padding: 8px; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        ${users.map(u => `
+                            <tr style="border-bottom: 1px solid #dfe1e6;">
+                                <td style="padding: 10px 8px; display: flex; align-items: center; gap: 10px;">
+                                    <div class="user-avatar" style="width: 28px; height: 28px; font-size: 11px;">${u.avatar}</div>
+                                    <strong>${u.username}</strong>${u.username === currentUser.username ? '<span style="font-size:11px; color:#0052cc;">(You)</span>' : ''}
+                                </td>
+                                <td style="padding: 10px 8px;"><span class="status-badge ${u.role === 'Admin' ? 'open' : 'in-progress'}">${u.role}</span></td>
+                                <td style="padding: 10px 8px; text-align: right;">
+                                    ${u.username !== currentUser.username
+    ? `<button class="delete-user-btn" data-username="${u.username}" style="background: #de350b; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Delete</button>`
+    : '<span style="font-size: 12px; color: #5e6c84;">Active</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </div>
         </div>
     `;
 
   document.body.appendChild(modal);
 
-  // Close modal & restore clean URL
-  const closeModal = () => {
-    modal.remove();
-    window.history.pushState({}, '', window.location.pathname);
-  };
+  modal.querySelector('.close-modal').onclick = () => modal.remove();
 
-  modal.querySelector('.close-modal').onclick = closeModal;
-
-  // Shareable link button
-  modal.querySelector('#share-issue-btn').onclick = () => {
-    const shareableUrl = `${window.location.origin}${window.location.pathname}?issue=${issue.key}`;
-    navigator.clipboard.writeText(shareableUrl);
-    alert(`Direct URL copied to clipboard:\n${shareableUrl}`);
-  };
-
-  // Comment submission
-  modal.querySelector('#post-comment-btn').onclick = () => {
-    const input = modal.querySelector('#comment-input');
-    if (!input.value.trim()) return;
-
-    issue.comments = issue.comments || [];
-    issue.comments.push({ author: currentUser.username, text: input.value.trim(), date: 'Just now' });
-    saveIssues(issues);
-    openIssueModal(key);
-  };
+  // Attach click handlers to delete buttons
+  modal.querySelectorAll('.delete-user-btn').forEach(btn => {
+    btn.onclick = () => {
+      const targetUsername = btn.getAttribute('data-username');
+      if (confirm(`Are you sure you want to permanently delete account '${targetUsername}'?`)) {
+        const res = deleteUserAccount(targetUsername);
+        if (res.success) {
+          alert(res.message);
+          modal.remove();
+          openUserManagementModal(); // Refresh modal view
+        } else {
+          alert(res.message);
+        }
+      }
+    };
+  });
 }
+
+// ... Keep existing openIssueModal and openCreateModal functions unchanged below ...
