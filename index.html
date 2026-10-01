@@ -1,33 +1,91 @@
-<!doctype html>
-<html class="no-js" lang="">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MC Issues - Minecraft Bug Tracker</title>
   <link rel="stylesheet" href="css/style.css">
-  <meta name="description" content="">
-
-  <meta property="og:title" content="">
-  <meta property="og:type" content="">
-  <meta property="og:url" content="">
-  <meta property="og:image" content="">
-  <meta property="og:image:alt" content="">
-
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.png">
-
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#fafafa">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
+<div class="app-container">
+  <!-- Jira Header -->
+  <header class="jira-header">
+    <div class="header-left">
+      <span class="jira-logo"><i class="fa-brands fa-jira"></i> Atlassian</span>
+      <span class="nav-item active">Projects</span>
+      <span class="nav-item">Filters</span>
+      <span class="nav-item">Dashboards</span>
+      <button class="create-btn">Create</button>
+    </div>
+    <div class="header-right">
+      <input type="text" placeholder="Search Jira..." class="global-search">
+      <div class="user-avatar" title="Logged in as MojangDev">MD</div>
+    </div>
+  </header>
 
-  <!-- Add your site or application content here -->
-  <p>Hello world! This is HTML5 Boilerplate.</p>
-  <script src="js/app.js"></script>
+  <div class="main-body">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="project-info">
+        <img src="icon.svg" alt="Project Icon" class="project-icon" width="24" height="24">
+        <div>
+          <h3>Mojira - MC Issues</h3>
+          <span class="project-type">Software project</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="active"><i class="fa-solid fa-list"></i> Issue navigator</a>
+        <a href="#"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+        <a href="#"><i class="fa-solid fa-box-archive"></i> Components</a>
+      </nav>
+    </aside>
 
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <h1>Search requests</h1>
+      <div class="filter-bar">
+        <input type="text" id="issue-search-input" placeholder="Type to filter..." class="filter-input">
+        <select class="filter-select"><option>Status: All Open</option></select>
+        <select class="filter-select"><option>Priority: All</option></select>
+      </div>
+
+      <div class="table-container">
+        <table class="issue-table">
+          <thead>
+          <tr>
+            <th>T</th>
+            <th>Key</th>
+            <th>Summary</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Updated</th>
+          </tr>
+          </thead>
+          <tbody id="issue-table-body">
+          <tr>
+            <td><i class="fa-solid fa-bug" style="color: #e5493a;"></i></td>
+            <td><a href="#">MC-312218</a></td>
+            <td>The game crashes randomly</td>
+            <td><span class="status-badge open">OPEN</span></td>
+            <td><i class="fa-solid fa-angles-up" style="color: #ff5630;"></i> High</td>
+            <td>Just now</td>
+          </tr>
+          <tr>
+            <td><i class="fa-solid fa-bug" style="color: #e5493a;"></i></td>
+            <td><a href="#">MC-312216</a></td>
+            <td>Spear attack registration is not synced</td>
+            <td><span class="status-badge in-progress">IN PROGRESS</span></td>
+            <td><i class="fa-solid fa-angle-up" style="color: #ffab00;"></i> Medium</td>
+            <td>2 mins ago</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
 </body>
-
 </html>
