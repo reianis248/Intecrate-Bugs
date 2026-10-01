@@ -1,10 +1,9 @@
 const USERS_KEY = 'boundful_users_data';
-const CURRENT_USER_KEY = 'boundful_current_user';
+const CURRENT_USER_KEY = 'boundful_current_session';
 
 const defaultUsers = [
-  { username: 'BoundedDev', role: 'Admin', avatar: 'BD' },
-  { username: 'Steve', role: 'User', avatar: 'ST' },
-  { username: 'Alex_Craft', role: 'User', avatar: 'AC' }
+  { username: 'BoundedDev', password: 'password123', role: 'Admin', avatar: 'BD' },
+  { username: 'Steve', password: 'password123', role: 'User', avatar: 'ST' }
 ];
 
 export function getStoredUsers() {
@@ -17,47 +16,73 @@ export function getStoredUsers() {
 }
 
 export function getCurrentUser() {
-  const current = localStorage.getItem(CURRENT_USER_KEY);
-  if (!current) {
-    const defaultUser = defaultUsers[0];
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
-    return defaultUser;
-  }
-  return JSON.parse(current);
+  const session = localStorage.getItem(CURRENT_USER_KEY);
+  return session ? JSON.parse(session) : null;
 }
 
-export function setCurrentUser(username) {
+export function loginUser(username, password) {
   const users = getStoredUsers();
-  const user = users.find(u => u.username === username);
-  if (user) {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-    updateUserAvatarUI();
+  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+  if (!user || user.password !== password) {
+    return { success: false, message: 'Invalid username or password' };
   }
+
+  const sessionData = { username: user.username, role: user.role, avatar: user.avatar };
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionData));
+  return { success: true };
 }
 
-export function updateUserAvatarUI() {
+export function registerUser(username, password) {
+  const users = getStoredUsers();
+  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+    return { success: false, message: 'Username already exists' };
+  }
+
+  const newUser = {
+    username,
+    password,
+    role: 'User',
+    avatar: username.substring(0, 2).toUpperCase()
+  };
+
+  users.push(newUser);
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+  // Auto log in after registration
+  loginUser(username, password);
+  return { success: true };
+}
+
+export function logoutUser() {
+  localStorage.removeItem(CURRENT_USER_KEY);
+  window.location.href = 'login.html';
+}
+
+export function checkAuthGuard() {
   const user = getCurrentUser();
-  const avatarEl = document.querySelector('.user-avatar');
-  if (avatarEl) {
-    avatarEl.textContent = user.avatar;
-    avatarEl.title = `Logged in as ${user.username} (${user.role})`;
+  if (!user && !window.location.pathname.endsWith('login.html')) {
+    window.location.href = 'login.html';
   }
 }
 
 export function initAuth() {
-  updateUserAvatarUI();
+  checkAuthGuard();
+  const currentUser = getCurrentUser();
 
-  const avatarEl = document.querySelector('.user-avatar');
-  if (avatarEl) {
-    avatarEl.addEventListener('click', () => {
-      const users = getStoredUsers();
-      const current = getCurrentUser();
-      const nextIndex = (users.findIndex(u => u.username === current.username) + 1) % users.length;
-      const nextUser = users[nextIndex];
+  if (currentUser) {
+    const avatarEl = document.querySelector('.user-avatar');
+    if (avatarEl) {
+      avatarEl.textContent = currentUser.avatar;
+      avatarEl.title = `Logged in as ${currentUser.username} (${currentUser.role}) - Click to logout`;
+      avatarEl.style.cursor = 'pointer';
 
-      setCurrentUser(nextUser.username);
-      alert(`Switched user profile to: ${nextUser.username} (${nextUser.role})`);
-      window.location.reload();
-    });
+      // Click avatar to log out
+      avatarEl.onclick = () => {
+        if (confirm(`Logged in as ${currentUser.username}. Do you want to log out?`)) {
+          logoutUser();
+        }
+      };
+    }
   }
 }
