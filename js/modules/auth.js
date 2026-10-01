@@ -1,5 +1,3 @@
-import { getCurrentUser } from './auth.js'; // Helper import if needed
-
 const USERS_KEY = 'boundful_users_data';
 const CURRENT_USER_KEY = 'boundful_current_user';
 
