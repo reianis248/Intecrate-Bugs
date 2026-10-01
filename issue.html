@@ -12,19 +12,42 @@
   <!-- Top Navigation Header -->
   <header class="jira-header">
     <div class="header-left">
-      <a href="index.html" class="jira-logo" style="color:white; text-decoration:none;"><i class="fa-solid fa-cube"></i> Boundful</a>
-      <a href="index.html" class="nav-item" style="color:white; text-decoration:none;">&larr; Back to Dashboard</a>
+      <a href="/" class="jira-logo" style="color:white; text-decoration:none;"><i class="fa-solid fa-cube"></i> Boundful</a>
+      <span class="nav-item">Projects</span>
+      <span class="nav-item">Filters</span>
+      <span class="nav-item">Dashboards</span>
+      <button class="create-btn">Create</button>
     </div>
     <div class="header-right">
+      <input type="text" placeholder="Search Boundful..." class="global-search">
       <div class="user-avatar" title="Logged in">BD</div>
     </div>
   </header>
 
-  <main class="content-area" style="max-width: 900px; margin: 30px auto; width: 100%;">
-    <div id="full-issue-container">
-      <p style="color: #5e6c84;">Loading issue details...</p>
-    </div>
-  </main>
+  <div class="main-body">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="project-info">
+        <img src="icon.svg" alt="Project Icon" class="project-icon" width="24" height="24">
+        <div>
+          <h3>Boundful Issues</h3>
+          <span class="project-type">Software project</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/" class="active"><i class="fa-solid fa-list"></i> Issue navigator</a>
+        <a href="#"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+        <a href="#"><i class="fa-solid fa-box-archive"></i> Components</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <div id="full-issue-container">
+        <p style="color: #5e6c84;">Loading issue details...</p>
+      </div>
+    </main>
+  </div>
 </div>
 
 <script src="js/issue-page.js" type="module"></script>
