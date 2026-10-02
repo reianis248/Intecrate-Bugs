@@ -58,6 +58,11 @@ export function openCreateModal() {
             </div>
 
             <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Description</label>
+                <textarea id="issue-description" placeholder="Add a detailed description..." rows="3" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 12px;">
                 <label style="display: block; font-size: 12px; font-weight: 600; color: #5e6c84; margin-bottom: 4px;">Attachment (Image or Link URL)</label>
                 <input type="url" id="issue-attachment" placeholder="https://example.com/image.png or website link" style="width: 100%; padding: 8px; border: 1px solid #dfe1e6; border-radius: 3px; box-sizing: border-box;">
             </div>
@@ -97,18 +102,23 @@ export function openCreateModal() {
     e.preventDefault();
 
     const issues = getStoredIssues();
+    const currentUser = getCurrentUser();
     const nextNumber = issues.length > 0 ? Math.max(...issues.map(i => parseInt(i.key.replace('BF-', '')) || 1000)) + 1 : 1001;
     const newKey = `BF-${nextNumber}`;
 
     const attachment = document.getElementById('issue-attachment').value.trim();
+    const description = document.getElementById('issue-description').value.trim();
 
     const newIssue = {
       key: newKey,
       type: document.getElementById('issue-type').value,
       summary: document.getElementById('issue-summary').value.trim(),
+      description: description || '',
       status: document.getElementById('issue-status').value,
       priority: document.getElementById('issue-priority').value,
+      reporter: currentUser ? currentUser.username : 'Anonymous',
       attachment: attachment || null,
+      comments: [],
       updated: 'Just now'
     };
 
@@ -159,6 +169,13 @@ export function openIssueModal(key) {
                     <div><span class="status-badge">${issue.status}</span></div>
                 `}
             </div>
+
+            ${issue.description ? `
+                <div style="margin-top: 12px; margin-bottom: 12px;">
+                    <strong style="font-size: 12px; color: #5e6c84; display: block; margin-bottom: 4px;">Description:</strong>
+                    <div style="background: #fafbfc; border: 1px solid #dfe1e6; border-radius: 3px; padding: 10px; font-size: 13px; color: #172b4d; white-space: pre-wrap;">${issue.description}</div>
+                </div>
+            ` : ''}
 
             ${issue.attachment ? `
                 <div style="margin-top: 16px; border-top: 1px solid #dfe1e6; padding-top: 12px;">
